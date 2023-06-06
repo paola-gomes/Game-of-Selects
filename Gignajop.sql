@@ -29,7 +29,11 @@ references Cliente (idcliente)
 insert into cliente 
 values (null, 'Eva', 'Santos', '451.623.012-01', 1, null),
 	   (null, 'Adão', 'Santos', '253.623.012-02', 0, 1);
-
+       
+insert into cliente values 
+(null, 'Guilherme', 'Gonçalves', '539.263.008-17', 1, null),
+(null, 'Giovanna', 'Freitas', '508.007.098-61', 0, 3);
+       
 create table complemento (
 idComplemento int auto_increment,
 fkCliente int, 
@@ -97,6 +101,8 @@ references endereco (idEndereco),
 constraint pkCompostaH primary key (idComplementoHosp, fkHospedagem, fkEnderecoHosp)
 );
 
+
+
 insert into complementoHosp 
 values (null, 1, 2, '1502');
 
@@ -123,6 +129,76 @@ references viagem (idViagem),
 constraint pkCompostaR primary key (idRec, fkViagemRec)
 );
 
+
+
 insert into recomendacoes 
 values (null, 'Ponto de Turismo', '30 minutos', 1),
 	   (null, 'Restaurante', '10 minutos', 1);
+       
+
+
+-- 15 SELECTS FÁCEIS 
+
+select * from endereco;
+select * from complemento;
+select * from cliente;
+select * from viagem;
+select * from contrato;
+select * from hospedagem;
+select * from complementoHosp;
+select * from transporte;
+select * from recomendacoes;
+select * from complemento join cliente on fkCliente = idCliente join endereco on fkEndereco = idEndereco;
+select * from viagem join hospedagem on fkViagemHosp = idViagem;
+select * from transporte join viagem on fkViagemTransp = idViagem;
+select * from recomendacoes join viagem on fkViagemRec = idViagem;
+select * from complementoHosp join endereco on fkEnderecoHosp = idEndereco;
+select * from contrato join cliente on fkClienteCont = idCliente join viagem on fkViagem = idViagem;
+
+-- 10 SELECTS MÉDIOS
+select cliente.nome as Nome,
+	   cliente.cpf as Cpf,
+       acompanhante.nome as Nome_Acompanhante,
+       acompanhante.cpf as Cpf_Acompanhante
+       from cliente as cliente join cliente as acompanhante 
+       on acompanhante.fkAcompanhante = cliente.idCliente;
+       
+select viagem.local as Local,
+hospedagem.tipo as TipoHospedagem,
+transporte.meioTransporte as MeioTrasporte,
+recomendacoes.tipo as TipoRecomendacoes
+from viagem join hospedagem 
+            on idViagem = fkViagemHosp
+            join transporte 
+            on idViagem = fkViagemTransp
+            join recomendacoes 
+            on idViagem = fkViagemRec;
+            
+select sum(valorTotal) from contrato;
+
+select round(avg(valorTotal),2) from contrato;
+       
+-- 5 SELECTS DIFÍCEIS
+
+
+-- 2 CHALLENGE
+
+select cliente.nome as Nome,
+	   cliente.cpf as Cpf,
+       acompanhante.nome as Nome_Acompanhante,
+       acompanhante.cpf as Cpf_Acompanhante,       
+       viagem.local as Destino,   
+       contrato.valorTotal as Valor,
+       hospedagem.nomeLocal as Nome_Hospedagem,
+       hospedagem.tipo as Tipo_Hospedagem,       
+       transporte.meioTransporte as Transporte,
+       recomendacoes.tipo as Tipo_Recomendacoes,
+       recomendacoes.distanciaHosp as Distancia_Hospedagem
+       from cliente as cliente  left join  cliente as acompanhante 
+       on acompanhante.fkAcompanhante = cliente.idCliente
+       right join contrato on contrato.fkClienteCont = cliente.idCliente
+       right join viagem on contrato.fkViagem = viagem.idViagem
+       right join hospedagem on hospedagem.fkViagemHosp = Viagem.idViagem
+       right join transporte on transporte.fkViagemTransp = Viagem.idViagem
+       right join recomendacoes on recomendacoes.fkViagemRec = Viagem.idViagem
+       ;
