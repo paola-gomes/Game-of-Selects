@@ -156,29 +156,106 @@ select * from complementoHosp join endereco on fkEnderecoHosp = idEndereco;
 select * from contrato join cliente on fkClienteCont = idCliente join viagem on fkViagem = idViagem;
 
 -- 10 SELECTS MÉDIOS
+
 select cliente.nome as Nome,
-	   cliente.cpf as Cpf,
-       acompanhante.nome as Nome_Acompanhante,
-       acompanhante.cpf as Cpf_Acompanhante
-       from cliente as cliente join cliente as acompanhante 
-       on acompanhante.fkAcompanhante = cliente.idCliente;
+cliente.cpf as Cpf,
+acompanhante.nome as Nome_Acompanhante,
+acompanhante.cpf as Cpf_Acompanhante
+from cliente as cliente join cliente as acompanhante 
+on acompanhante.fkAcompanhante = cliente.idCliente;
+       
+select c.nome, c.sobrenome, c.cpf, cont.idContrato, cont.dtHorarioAssinatura, cont.seguro, cont.valorTotal
+from cliente c
+inner join contrato cont on c.idCliente = cont.fkClienteCont
+order by c.nome asc;
        
 select viagem.local as Local,
 hospedagem.tipo as TipoHospedagem,
 transporte.meioTransporte as MeioTrasporte,
 recomendacoes.tipo as TipoRecomendacoes
 from viagem join hospedagem 
-            on idViagem = fkViagemHosp
-            join transporte 
-            on idViagem = fkViagemTransp
-            join recomendacoes 
-            on idViagem = fkViagemRec;
+on idViagem = fkViagemHosp
+join transporte 
+on idViagem = fkViagemTransp
+join recomendacoes 
+on idViagem = fkViagemRec;
             
 select sum(valorTotal) from contrato;
 
 select round(avg(valorTotal),2) from contrato;
+
+select v.local, SUM(distanciaHosp) as total_distancia_recomendacoes
+from viagem v
+left join recomendacoes r on v.idViagem = r.fkViagemRec
+group by v.local;
+
+select c.idContrato, e.rua, e.bairro, e.cidade, e.estado
+from contrato c
+join cliente cl on c.fkClienteCont = cl.idCliente
+join complemento comp on comp.fkCliente = cl.idCliente
+join endereco e on comp.fkEndereco = e.idEndereco;
+
+select cl.idCliente, cl.nome, cl.sobrenome, cl.cpf, e.cep, e.rua, e.bairro, e.cidade, e.estado
+from cliente cl
+join complemento comp on cl.idCliente = comp.fkCliente
+join endereco e on comp.fkEndereco = e.idEndereco;
+
+select v.local, c.nome, c.sobrenome, c.cpf, c.idCliente, cont.dtHorarioAssinatura
+from viagem v
+join contrato cont on v.idViagem = cont.fkViagem
+join cliente c on cont.fkClienteCont = c.idCliente
+where c.idCliente = 1
+order by cont.dtHorarioAssinatura;
+
+select v.local, h.tipo as tipo_hospedagem, h.nomeLocal as local_hospedagem, t.meioTransporte, t.numDiarias
+from viagem v
+left join hospedagem h on v.idViagem = h.fkViagemHosp
+left join transporte t on v.idViagem = t.fkViagemTransp;
+
+
        
 -- 5 SELECTS DIFÍCEIS
+
+select c.nome as Cliente, 
+cont.idContrato as ID_Contrato, 
+v.local as Local_Viagem, 
+h.nomeLocal as Hospedagem, 
+t.meioTransporte as Transporte
+from cliente c
+join contrato cont on c.idCliente = cont.fkClienteCont
+join viagem v on cont.fkViagem = v.idViagem
+join hospedagem h on v.idViagem = h.fkViagemHosp
+join transporte t on v.idViagem = t.fkViagemTransp;
+
+select c.nome as Nome_Cliente, c.cpf as CPF_Cliente,
+acomp.nome as Nome_Acompanhante, acomp.cpf as CPF_Acompanhante,
+v.local as Destino_Viagem, cont.valorTotal as Valor_Viagem,
+h.nomeLocal as Nome_Hospedagem, h.tipo as Tipo_Hospedagem,
+trans.meioTransporte as Meio_Transporte,
+rec.tipo as Tipo_Recomendacao, rec.distanciaHosp as Distancia_Hospedagem
+from cliente c
+left join cliente acomp on c.fkAcompanhante = acomp.idCliente
+join contrato cont on c.idCliente = cont.fkClienteCont
+join viagem v on cont.fkViagem = v.idViagem
+join hospedagem h on v.idViagem = h.fkViagemHosp
+join transporte trans on v.idViagem = trans.fkViagemTransp
+left join recomendacoes rec on v.idViagem = rec.fkViagemRec;
+
+select v.local as Destino_Viagem, 
+sum(cont.valorTotal + trans.preco) as Total_Viagem_Transporte
+from viagem v
+join contrato cont on v.idViagem = cont.fkViagem
+join transporte trans on v.idViagem = trans.fkViagemTransp
+group by v.local;
+
+select c.nome as Nome_Cliente, 
+eCliente.cep as CEP_Cliente, eCliente.rua as Rua_Cliente, eCliente.bairro as Bairro_Cliente, eCliente.cidade as Cidade_Cliente, eCliente.estado as Estado_Cliente,
+acomp.nome as Nome_Acompanhante,
+eAcomp.cep as CEP_Acompanhante, eAcomp.rua as Rua_Acompanhante, eAcomp.bairro as Bairro_Acompanhante, eAcomp.cidade as Cidade_Acompanhante, eAcomp.estado as Estado_Acompanhante
+from cliente c
+left join endereco eCliente on c.idCliente = eCliente.idEndereco
+left join cliente acomp on c.fkAcompanhante = acomp.idCliente
+left join endereco eAcomp on acomp.idCliente = eAcomp.idEndereco;
 
 
 -- 2 CHALLENGE
@@ -202,3 +279,16 @@ select cliente.nome as Nome,
        right join transporte on transporte.fkViagemTransp = Viagem.idViagem
        right join recomendacoes on recomendacoes.fkViagemRec = Viagem.idViagem
        ;
+       
+select c.nome, c.sobrenome, c.cpf, comp.numero as numero_complemento, comp.complemento, 
+e.cep, e.rua, e.bairro, 
+e.cidade, e.estado, h.tipo as tipo_hospedagem, 
+h.numCamas, h.nomeLocal as local_hospedagem, 
+t.meioTransporte, t.numDiarias
+from cliente c
+left join complemento comp on c.idCliente = comp.fkCliente
+left join endereco e on comp.fkEndereco = e.idEndereco
+left join contrato cont on c.idCliente = cont.fkClienteCont
+left join hospedagem h on cont.fkViagem = h.fkViagemHosp
+left join transporte t on cont.fkViagem = t.fkViagemTransp
+where c.qtdAcompanhante = 0;
