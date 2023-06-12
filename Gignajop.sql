@@ -101,8 +101,6 @@ references endereco (idEndereco),
 constraint pkCompostaH primary key (idComplementoHosp, fkHospedagem, fkEnderecoHosp)
 );
 
-
-
 insert into complementoHosp 
 values (null, 1, 2, '1502');
 
@@ -129,13 +127,10 @@ references viagem (idViagem),
 constraint pkCompostaR primary key (idRec, fkViagemRec)
 );
 
-
-
 insert into recomendacoes 
 values (null, 'Ponto de Turismo', '30 minutos', 1),
 	   (null, 'Restaurante', '10 minutos', 1);
        
-
 
 -- 15 SELECTS FÁCEIS 
 
@@ -145,17 +140,19 @@ select * from cliente;
 select * from viagem;
 select * from contrato;
 select * from hospedagem;
-select * from complementoHosp;
 select * from transporte;
+select * from complementoHosp;
 select * from recomendacoes;
-select * from complemento join cliente on fkCliente = idCliente join endereco on fkEndereco = idEndereco;
-select * from viagem join hospedagem on fkViagemHosp = idViagem;
+select * from complementoHosp join endereco on fkEnderecoHosp = idEndereco;
+select * from viagem join hospedagem on idViagem = fkViagemHosp;
+select * from cliente join contrato on idCliente = fkClienteCont;
 select * from transporte join viagem on fkViagemTransp = idViagem;
 select * from recomendacoes join viagem on fkViagemRec = idViagem;
-select * from complementoHosp join endereco on fkEnderecoHosp = idEndereco;
-select * from contrato join cliente on fkClienteCont = idCliente join viagem on fkViagem = idViagem;
+
 
 -- 10 SELECTS MÉDIOS
+
+select * from viagem join hospedagem on fkViagemHosp = idViagem;
 
 select cliente.nome as Nome,
 cliente.cpf as Cpf,
@@ -180,11 +177,11 @@ on idViagem = fkViagemTransp
 join recomendacoes 
 on idViagem = fkViagemRec;
             
-select sum(valorTotal) from contrato;
+select sum(valorTotal) as somaTotal from contrato;
 
-select round(avg(valorTotal),2) from contrato;
+select round(avg(valorTotal),2) as Media from contrato;
 
-select v.local, SUM(distanciaHosp) as total_distancia_recomendacoes
+select v.local, SUM(distanciaHosp) as totalDistanciaRecomendacoes
 from viagem v
 left join recomendacoes r on v.idViagem = r.fkViagemRec
 group by v.local;
@@ -207,14 +204,13 @@ join cliente c on cont.fkClienteCont = c.idCliente
 where c.idCliente = 1
 order by cont.dtHorarioAssinatura;
 
+       
+-- 5 SELECTS DIFÍCEIS
+
 select v.local, h.tipo as tipo_hospedagem, h.nomeLocal as local_hospedagem, t.meioTransporte, t.numDiarias
 from viagem v
 left join hospedagem h on v.idViagem = h.fkViagemHosp
 left join transporte t on v.idViagem = t.fkViagemTransp;
-
-
-       
--- 5 SELECTS DIFÍCEIS
 
 select c.nome as Cliente, 
 cont.idContrato as ID_Contrato, 
@@ -249,9 +245,17 @@ join transporte trans on v.idViagem = trans.fkViagemTransp
 group by v.local;
 
 select c.nome as Nome_Cliente, 
-eCliente.cep as CEP_Cliente, eCliente.rua as Rua_Cliente, eCliente.bairro as Bairro_Cliente, eCliente.cidade as Cidade_Cliente, eCliente.estado as Estado_Cliente,
+eCliente.cep as CEP_Cliente, 
+eCliente.rua as Rua_Cliente, 
+eCliente.bairro as Bairro_Cliente, 
+eCliente.cidade as Cidade_Cliente, 
+eCliente.estado as Estado_Cliente,
 acomp.nome as Nome_Acompanhante,
-eAcomp.cep as CEP_Acompanhante, eAcomp.rua as Rua_Acompanhante, eAcomp.bairro as Bairro_Acompanhante, eAcomp.cidade as Cidade_Acompanhante, eAcomp.estado as Estado_Acompanhante
+eAcomp.cep as CEP_Acompanhante, 
+eAcomp.rua as Rua_Acompanhante, 
+eAcomp.bairro as Bairro_Acompanhante, 
+eAcomp.cidade as Cidade_Acompanhante, 
+eAcomp.estado as Estado_Acompanhante
 from cliente c
 left join endereco eCliente on c.idCliente = eCliente.idEndereco
 left join cliente acomp on c.fkAcompanhante = acomp.idCliente
