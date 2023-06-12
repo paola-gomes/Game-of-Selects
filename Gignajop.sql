@@ -152,6 +152,8 @@ select * from recomendacoes join viagem on fkViagemRec = idViagem;
 
 -- 10 SELECTS MÉDIOS
 
+select nome, sobrenome from cliente where nome like 'G%';
+
 select * from viagem join hospedagem on fkViagemHosp = idViagem;
 
 select cliente.nome as Nome,
